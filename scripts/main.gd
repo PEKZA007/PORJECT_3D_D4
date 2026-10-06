@@ -1,75 +1,78 @@
 extends Node3D
 
 const PLAYER_SCRIPT: Script = preload("res://scripts/player.gd")
+const SCENE_OFFSET: Vector3 = Vector3(70.484, 4.971335, 20.99261)
 
+var school_scene: Node3D
 var player: CharacterBody3D
-var warehouse_light: OmniLight3D
-var red_light: OmniLight3D
 
 func _ready() -> void:
-	_build_scene()
+	school_scene = $SchoolHallway
+	school_scene.position = SCENE_OFFSET
+	_prepare_scene_materials()
+	_setup_environment()
+	_setup_scene_collision()
 	_build_player()
 
-func _process(_delta: float) -> void:
-	if warehouse_light != null:
-		var flicker: float = 0.94 + sin(Time.get_ticks_msec() * 0.017) * 0.035
-		warehouse_light.light_energy = flicker
-	if red_light != null:
-		red_light.light_energy = 0.4 + sin(Time.get_ticks_msec() * 0.003) * 0.12
+func _prepare_scene_materials() -> void:
+	var mesh_nodes: Array[Node] = school_scene.find_children("*", "MeshInstance3D", true, false)
+	for node: Node in mesh_nodes:
+		var mesh_instance: MeshInstance3D = node as MeshInstance3D
+		if mesh_instance == null or mesh_instance.mesh == null:
+			continue
+		for surface: int in mesh_instance.mesh.get_surface_count():
+			var material: Material = mesh_instance.mesh.surface_get_material(surface)
+			if material is StandardMaterial3D:
+				var imported_material: StandardMaterial3D = material as StandardMaterial3D
+				var visible_material: StandardMaterial3D = imported_material.duplicate() as StandardMaterial3D
+				visible_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+				visible_material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
+				visible_material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+				visible_material.metallic = 0.0
+				visible_material.roughness = 0.82
+				if visible_material.albedo_texture != null:
+					visible_material.albedo_color = Color.WHITE
+				mesh_instance.set_surface_override_material(surface, visible_material)
 
-func _build_scene() -> void:
+func _setup_environment() -> void:
 	var world_environment: WorldEnvironment = WorldEnvironment.new()
-	world_environment.name = "NightEnvironment"
+	world_environment.name = "HallwayEnvironment"
 	var environment: Environment = Environment.new()
 	environment.background_mode = Environment.BG_COLOR
-	environment.background_color = Color("#05060a")
+	environment.background_color = Color("#202630")
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = Color("#4d5870")
-	environment.ambient_light_energy = 0.22
+	environment.ambient_light_color = Color("#ffffff")
+	environment.ambient_light_energy = 1.1
 	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	environment.fog_enabled = true
-	environment.fog_light_color = Color("#151925")
-	environment.fog_light_energy = 0.45
-	environment.fog_density = 0.018
+	environment.adjustment_enabled = true
+	environment.adjustment_brightness = 1.12
+	environment.adjustment_contrast = 0.98
+	environment.adjustment_saturation = 1.0
 	world_environment.environment = environment
 	add_child(world_environment)
 
-	var moon: DirectionalLight3D = DirectionalLight3D.new()
-	moon.name = "Moonlight"
-	moon.rotation_degrees = Vector3(-48.0, -28.0, 0.0)
-	moon.light_color = Color("#8592ba")
-	moon.light_energy = 0.28
-	moon.shadow_enabled = true
-	add_child(moon)
+	var fill_light: DirectionalLight3D = DirectionalLight3D.new()
+	fill_light.name = "HallwayFillLight"
+	fill_light.rotation_degrees = Vector3(-52.0, -28.0, 0.0)
+	fill_light.light_color = Color("#ffffff")
+	fill_light.light_energy = 1.0
+	fill_light.shadow_enabled = true
+	add_child(fill_light)
 
-	warehouse_light = OmniLight3D.new()
-	warehouse_light.name = "WarehouseFlicker"
-	warehouse_light.position = Vector3(0.0, 5.4, 0.0)
-	warehouse_light.omni_range = 17.0
-	warehouse_light.light_color = Color("#ffd7a0")
-	warehouse_light.light_energy = 0.95
-	warehouse_light.shadow_enabled = true
-	add_child(warehouse_light)
-
-	red_light = OmniLight3D.new()
-	red_light.name = "RedWarningLight"
-	red_light.position = Vector3(0.0, 3.2, -8.0)
-	red_light.omni_range = 8.0
-	red_light.light_color = Color("#d11f38")
-	red_light.light_energy = 0.4
-	add_child(red_light)
-
-	_add_box("Floor", Vector3(28.0, 0.25, 21.0), Vector3(0.0, -0.25, 0.0), _material(Color("#17151a"), 0.9))
-	_add_box("BackWall", Vector3(28.0, 6.5, 0.35), Vector3(0.0, 3.0, -10.35), _material(Color("#20202a"), 0.9))
-	_add_box("LeftWall", Vector3(0.35, 6.5, 21.0), Vector3(-13.8, 3.0, 0.0), _material(Color("#1b1c26"), 0.95))
-	_add_box("RightWall", Vector3(0.35, 6.5, 21.0), Vector3(13.8, 3.0, 0.0), _material(Color("#1b1c26"), 0.95))
-	_add_box("Roof", Vector3(28.0, 0.25, 21.0), Vector3(0.0, 6.25, 0.0), _material(Color("#101117"), 1.0))
+func _setup_scene_collision() -> void:
+	var mesh_nodes: Array[Node] = school_scene.find_children("*", "MeshInstance3D", true, false)
+	for node: Node in mesh_nodes:
+		var mesh_instance: MeshInstance3D = node as MeshInstance3D
+		if mesh_instance != null and mesh_instance.mesh != null:
+			mesh_instance.create_trimesh_collision()
 
 func _build_player() -> void:
 	player = CharacterBody3D.new()
 	player.name = "Player"
-	player.position = Vector3(0.0, 1.75, 8.0)
+	player.position = Vector3(6.8, 10.8, 33.0)
+	player.rotation_degrees.y = 180.0
 	player.set_script(PLAYER_SCRIPT)
+
 	var capsule: CollisionShape3D = CollisionShape3D.new()
 	var capsule_shape: CapsuleShape3D = CapsuleShape3D.new()
 	capsule_shape.radius = 0.38
@@ -82,35 +85,15 @@ func _build_player() -> void:
 	camera.fov = 72.0
 	camera.current = true
 	player.add_child(camera)
+
 	var flashlight: SpotLight3D = SpotLight3D.new()
 	flashlight.name = "Flashlight"
 	flashlight.position = Vector3(0.0, -0.05, -0.15)
 	flashlight.rotation_degrees = Vector3(-3.0, 0.0, 0.0)
-	flashlight.spot_range = 14.0
+	flashlight.spot_range = 18.0
 	flashlight.spot_angle = 42.0
-	flashlight.light_energy = 3.0
-	flashlight.light_color = Color("#d9e4ff")
+	flashlight.light_energy = 2.8
+	flashlight.light_color = Color("#e3edff")
 	flashlight.shadow_enabled = true
 	camera.add_child(flashlight)
 	add_child(player)
-
-func _add_box(node_name: String, size: Vector3, position: Vector3, material: Material) -> MeshInstance3D:
-	var mesh: BoxMesh = BoxMesh.new()
-	mesh.size = size
-	return _add_mesh(node_name, mesh, position, Vector3.ONE, material)
-
-func _add_mesh(node_name: String, mesh: Mesh, position: Vector3, scale: Vector3, material: Material) -> MeshInstance3D:
-	var instance: MeshInstance3D = MeshInstance3D.new()
-	instance.name = node_name
-	instance.mesh = mesh
-	instance.position = position
-	instance.scale = scale
-	instance.material_override = material
-	add_child(instance)
-	return instance
-
-func _material(color: Color, roughness: float) -> StandardMaterial3D:
-	var material: StandardMaterial3D = StandardMaterial3D.new()
-	material.albedo_color = color
-	material.roughness = roughness
-	return material

@@ -1,11 +1,16 @@
-# Jubutsu - Warehouse Walk Scene
+# Jubutsu
 
-Minimal Godot 4 scene based on the supplied G4 brief. Gameplay systems and decorative props have been removed; the project now contains only the empty procedural warehouse shell, atmosphere, and first-person character movement.
+Prototype scene setup for the psychological-horror exploration game.
+
+## Current state
+
+- Imported school hallway scene: `assets/school_hallwayrooftopstairs.glb`
+- First-person player movement and mouse look
+- Scene mesh collision generated at runtime for walking
+- No anomaly, quest, prop, or story systems added yet
 
 ## Controls
 
 - `WASD` / arrow keys: move
 - Mouse: look
 - `Esc`: release or recapture the mouse
-
-The scene uses only procedural floor, walls, ceiling, lighting, and fog. No external 3D assets are required.
