@@ -1,79 +1,111 @@
 extends CharacterBody3D
-
-signal interact_requested(collider: Node)
-signal look_target_changed(target_id: String)
-signal quest_requested
-signal seal_requested
-
-@export var speed: float = 4.6
-@export var mouse_sensitivity: float = 0.0022
-@export var interaction_mask: int = 2
-
-var camera: Camera3D
-var pitch: float = 0.0
-var mouse_captured: bool = true
-var last_target_id: String = ""
-
-func _ready() -> void:
-	camera = $Camera3D
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+@export var walk_speed: float = 2.7
+@export var sprint_speed: float = 5.5
+@export var sensitivity: float = 0.0022
+@export var eye_height: float = 1.49
+@export var eye_forward_offset: float = 0.40
+@export var step_height: float = 0.26
+var enabled: bool = false
+var sprinting: bool = false
+var sprint_allowed: bool = true
+var step_clock: float = 0.0
+signal footstep(sprinting: bool)
+@onready var camera: Camera3D = $Camera3D
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion and mouse_captured:
-		rotate_y(-event.relative.x * mouse_sensitivity)
-		pitch = clamp(pitch - event.relative.y * mouse_sensitivity, -1.3, 1.3)
-		camera.rotation.x = pitch
-	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_ESCAPE:
-			mouse_captured = not mouse_captured
-			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED if mouse_captured else Input.MOUSE_MODE_VISIBLE)
-		elif event.keycode == KEY_E and mouse_captured:
-			_try_interact()
-		elif event.keycode == KEY_1:
-			quest_requested.emit()
-		elif event.keycode == KEY_2:
-			seal_requested.emit()
+	if enabled and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and event is InputEventMouseMotion:
+		rotate_y(-event.relative.x * sensitivity)
+		camera.rotation.x = clampf(camera.rotation.x - event.relative.y * sensitivity, -1.52, 1.35)
 
-func _physics_process(_delta: float) -> void:
-	var input_vector: Vector2 = Vector2.ZERO
-	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT):
-		input_vector.x -= 1.0
-	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
-		input_vector.x += 1.0
-	if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP):
-		input_vector.y -= 1.0
-	if Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN):
-		input_vector.y += 1.0
-	input_vector = input_vector.normalized()
-	var direction: Vector3 = (transform.basis * Vector3(input_vector.x, 0.0, input_vector.y)).normalized()
-	velocity = direction * speed
-	move_and_slide()
-	global_position.x = clamp(global_position.x, 0.8, 12.8)
-	global_position.z = clamp(global_position.z, 0.8, 44.0)
-	global_position.y = clamp(global_position.y, 0.9, 17.5)
-
-	var current_target_id: String = _get_look_target()
-	if current_target_id != last_target_id:
-		last_target_id = current_target_id
-		look_target_changed.emit(current_target_id)
-
-func _get_look_target() -> String:
-	if camera == null:
-		return ""
-	var origin: Vector3 = camera.global_position
-	var end: Vector3 = origin + -camera.global_transform.basis.z * 3.6
-	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin, end, interaction_mask)
-	var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(query)
-	if hit and hit.collider is Node and hit.collider.has_meta("interact_id"):
-		return str(hit.collider.get_meta("interact_id"))
-	return ""
-
-func _try_interact() -> void:
-	if camera == null:
+func _physics_process(delta: float) -> void:
+	if not enabled:
+		velocity = Vector3.ZERO
 		return
-	var origin: Vector3 = camera.global_position
-	var end: Vector3 = origin + -camera.global_transform.basis.z * 3.6
-	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin, end, interaction_mask)
-	var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(query)
-	if hit and hit.collider is Node and hit.collider.has_meta("interact_id"):
-		interact_requested.emit(hit.collider)
+	var input := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
+	var direction := (transform.basis * Vector3(input.x, 0, input.y)).normalized()
+	sprinting = sprint_allowed and Input.is_action_pressed("sprint") and input.length() > 0.1
+	var speed := sprint_speed if sprinting else walk_speed
+	velocity.x = direction.x * speed
+	velocity.z = direction.z * speed
+	if not is_on_floor():
+		velocity.y -= 18.0 * delta
+	else:
+		velocity.y = -0.2
+	try_step_up(Vector3(velocity.x, 0, velocity.z) * delta)
+	move_and_slide()
+	update_body(delta)
+	update_eye_position()
+	camera.position.y = move_toward(camera.position.y, eye_height, delta * 1.8)
+	if Vector2(velocity.x, velocity.z).length() > 0.5:
+		step_clock += delta
+		if step_clock > (0.3 if sprinting else 0.52):
+			step_clock = 0.0
+			footstep.emit(sprinting)
+	camera.fov = lerpf(camera.fov, 79.0 if sprinting else 74.0, delta * 5.0)
+
+func reset_at(spawn: Transform3D) -> void:
+	if body_animator:
+		body_motion = "Idle"
+		body_animator.play("Idle")
+		body_animator.advance(0)
+	global_transform = spawn
+	velocity = Vector3.ZERO
+	camera.rotation = Vector3.ZERO
+	camera.position = Vector3(0, eye_height, -eye_forward_offset)
+	step_clock = 0.0
+
+func try_step_up(motion: Vector3) -> void:
+	if motion.length_squared() < 0.000001 or not is_on_floor():
+		return
+	if not test_move(global_transform, motion):
+		return
+	var raised := global_transform
+	raised.origin.y += step_height
+	if test_move(global_transform, Vector3.UP * step_height) or test_move(raised, motion):
+		return
+	var probe := global_position + motion.normalized() * (0.27 + motion.length())
+	var query := PhysicsRayQueryParameters3D.create(probe + Vector3.UP * (step_height + 0.04), probe - Vector3.UP * 0.03, 1)
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	if hit.is_empty() or hit.normal.y < 0.7:
+		return
+	var rise: float = hit.position.y - global_position.y + 0.012
+	if rise < 0.02 or rise > step_height:
+		return
+	global_position.y += rise
+	camera.position.y -= rise
+
+var body_animator: AnimationPlayer
+var body_motion: String = "Idle"
+func _ready() -> void:
+	body_animator = $BodyVisual/AnimationPlayer
+	body_animator.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
+	for mesh in $BodyVisual.find_children("*", "MeshInstance3D", true, false):
+		mesh.layers = 8
+		var body_mesh := MeshInstance3D.new()
+		body_mesh.name = "FirstPerson" + mesh.name
+		body_mesh.mesh = load("res://assets/models/first_person_%s.res" % mesh.name)
+		body_mesh.skin = mesh.skin
+		body_mesh.skeleton = mesh.skeleton
+		body_mesh.layers = 16
+		body_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		mesh.get_parent().add_child(body_mesh)
+	camera.position = Vector3(0, eye_height, -eye_forward_offset)
+	camera.cull_mask = 1 | 2 | 16
+	body_animator.play("Idle")
+	body_animator.advance(0)
+
+func update_body(delta: float) -> void:
+	var next := "Idle" if Vector2(velocity.x, velocity.z).length() < .1 else ("Run" if sprinting else "Walk")
+	if next != body_motion:
+		body_motion = next
+		body_animator.play(next, .18)
+	body_animator.advance(delta)
+
+func update_eye_position() -> void:
+	var origin := global_position + Vector3.UP * camera.position.y
+	var desired := origin - global_basis.z * eye_forward_offset
+	var query := PhysicsRayQueryParameters3D.create(origin, desired, 1)
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	camera.position.z = -eye_forward_offset
+	if not hit.is_empty():
+		camera.position.z = -maxf(0.0, origin.distance_to(hit.position) - .055)

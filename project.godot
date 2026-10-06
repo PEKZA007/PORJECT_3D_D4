@@ -10,24 +10,21 @@ config_version=5
 
 [application]
 
-config/name="jubutsu"
-run/main_scene="res://main.tscn"
-config/features=PackedStringArray("4.7", "Forward Plus")
+config/name="JUBUTSU — The Seventh Room"
+run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [display]
 
-window/size/viewport_width=1280
-window/size/viewport_height=720
+window/size/viewport_width=1440
+window/size/viewport_height=900
 window/size/window_width_override=1280
-window/size/window_height_override=720
+window/size/window_height_override=800
 window/stretch/mode="canvas_items"
-window/stretch/aspect="expand"
-
-[physics]
-
-3d/physics_engine="Jolt Physics"
 
 [rendering]
 
-rendering_device/driver.windows="d3d12"
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+anti_aliasing/quality/msaa_3d=1

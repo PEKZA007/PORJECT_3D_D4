@@ -1,0 +1,133 @@
+[gd_scene format=3]
+
+[ext_resource type="Shader" path="res://shaders/exit_mist.gdshader" id="1_7mcgs"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_exc14"]
+frequency = 0.035
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_wdyls"]
+width = 256
+height = 256
+noise = SubResource("FastNoiseLite_exc14")
+seamless = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rvjtk"]
+render_priority = 0
+shader = ExtResource("1_7mcgs")
+shader_parameter/mist_color = Color(0.3, 0.36, 0.34, 1)
+shader_parameter/density = 0.75
+shader_parameter/layer_seed = 0.0
+shader_parameter/cloud_texture = SubResource("NoiseTexture2D_wdyls")
+
+[sub_resource type="QuadMesh" id="QuadMesh_che1e"]
+size = Vector2(5.8, 6)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6pm43"]
+render_priority = 0
+shader = ExtResource("1_7mcgs")
+shader_parameter/mist_color = Color(0.3, 0.36, 0.34, 1)
+shader_parameter/density = 0.75
+shader_parameter/layer_seed = 7.13
+shader_parameter/cloud_texture = SubResource("NoiseTexture2D_wdyls")
+
+[sub_resource type="QuadMesh" id="QuadMesh_ntipt"]
+size = Vector2(5.8, 6)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ixehe"]
+render_priority = 0
+shader = ExtResource("1_7mcgs")
+shader_parameter/mist_color = Color(0.3, 0.36, 0.34, 1)
+shader_parameter/density = 0.75
+shader_parameter/layer_seed = 14.26
+shader_parameter/cloud_texture = SubResource("NoiseTexture2D_wdyls")
+
+[sub_resource type="QuadMesh" id="QuadMesh_lhowh"]
+size = Vector2(5.8, 6)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2u340"]
+render_priority = 0
+shader = ExtResource("1_7mcgs")
+shader_parameter/mist_color = Color(0.3, 0.36, 0.34, 1)
+shader_parameter/density = 0.75
+shader_parameter/layer_seed = 21.39
+shader_parameter/cloud_texture = SubResource("NoiseTexture2D_wdyls")
+
+[sub_resource type="QuadMesh" id="QuadMesh_fhui4"]
+size = Vector2(5.8, 6)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_cudx5"]
+render_priority = 0
+shader = ExtResource("1_7mcgs")
+shader_parameter/mist_color = Color(0.3, 0.36, 0.34, 1)
+shader_parameter/density = 0.75
+shader_parameter/layer_seed = 28.52
+shader_parameter/cloud_texture = SubResource("NoiseTexture2D_wdyls")
+
+[sub_resource type="QuadMesh" id="QuadMesh_c3js4"]
+size = Vector2(5.8, 6)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_txwmf"]
+render_priority = 0
+shader = ExtResource("1_7mcgs")
+shader_parameter/mist_color = Color(0.3, 0.36, 0.34, 1)
+shader_parameter/density = 0.75
+shader_parameter/layer_seed = 35.65
+shader_parameter/cloud_texture = SubResource("NoiseTexture2D_wdyls")
+
+[sub_resource type="QuadMesh" id="QuadMesh_neu0h"]
+size = Vector2(5.8, 6)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sowwd"]
+render_priority = 0
+shader = ExtResource("1_7mcgs")
+shader_parameter/mist_color = Color(0.3, 0.36, 0.34, 1)
+shader_parameter/density = 0.75
+shader_parameter/layer_seed = 42.78
+shader_parameter/cloud_texture = SubResource("NoiseTexture2D_wdyls")
+
+[sub_resource type="QuadMesh" id="QuadMesh_ehu1q"]
+size = Vector2(5.8, 6)
+
+[node name="ExitMist" type="Node3D" unique_id=1702660887]
+
+[node name="Layer00" type="MeshInstance3D" parent="." unique_id=1977101653]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 1.6, -0.9)
+material_override = SubResource("ShaderMaterial_rvjtk")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_che1e")
+
+[node name="Layer01" type="MeshInstance3D" parent="." unique_id=785600402]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 1.6, -0.64)
+material_override = SubResource("ShaderMaterial_6pm43")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_ntipt")
+
+[node name="Layer02" type="MeshInstance3D" parent="." unique_id=320478615]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 1.6, -0.38)
+material_override = SubResource("ShaderMaterial_ixehe")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_lhowh")
+
+[node name="Layer03" type="MeshInstance3D" parent="." unique_id=1108313478]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 1.6, -0.12)
+material_override = SubResource("ShaderMaterial_2u340")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_fhui4")
+
+[node name="Layer04" type="MeshInstance3D" parent="." unique_id=1642596824]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 1.6, 0.14)
+material_override = SubResource("ShaderMaterial_cudx5")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_c3js4")
+
+[node name="Layer05" type="MeshInstance3D" parent="." unique_id=1846975496]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 1.6, 0.4)
+material_override = SubResource("ShaderMaterial_txwmf")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_neu0h")
+
+[node name="Layer06" type="MeshInstance3D" parent="." unique_id=1834063277]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 1.6, 0.66)
+material_override = SubResource("ShaderMaterial_sowwd")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_ehu1q")

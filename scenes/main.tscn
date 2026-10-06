@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://c2884gbiajjy"]
+
+[ext_resource type="Script" uid="uid://dj2y7xy8afdgp" path="res://scripts/game.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/school_level.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/player.tscn" id="3"]
+[ext_resource type="Script" uid="uid://bg4x0kymegyq0" path="res://scripts/anomaly_director.gd" id="4"]
+[ext_resource type="Script" uid="uid://rw6jj1m2nbpm" path="res://scripts/hud.gd" id="5"]
+[ext_resource type="Script" uid="uid://vj8mr16b2kch" path="res://scripts/audio_manager.gd" id="6"]
+
+[node name="Jubutsu" type="Node3D" unique_id=1819141254]
+script = ExtResource("1")
+
+[node name="SchoolLevel" parent="." unique_id=1425911282 instance=ExtResource("2")]
+
+[node name="Player" parent="." unique_id=482014257 instance=ExtResource("3")]
+
+[node name="AnomalyDirector" type="Node" parent="." unique_id=424719137]
+script = ExtResource("4")
+
+[node name="Audio" type="Node" parent="." unique_id=1886562123]
+script = ExtResource("6")
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=646543936]
+script = ExtResource("5")

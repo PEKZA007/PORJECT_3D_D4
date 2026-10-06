@@ -1,0 +1,245 @@
+[
+  {
+    "id": 1,
+    "title": "กระดาษโผล่ที่ห้องอื่นนอกจากห้องที่ 1",
+    "effect": "misplaced_note",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 2,
+    "title": "มีเลือดไหลออกมาจากห้องเรียน แต่ในห้องไม่มีใคร",
+    "effect": "blood_leak",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 3,
+    "title": "ประตูห้องเรียนเปิดก่อนที่เราจะเดินมาถึง",
+    "effect": "early_door",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 4,
+    "title": "กระดาษโปสเตอร์หน้าห้องเรียนมีเยอะเกินไป",
+    "effect": "extra_posters",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 5,
+    "title": "คนที่เดินผ่านไปมา ยื่นของให้เรา",
+    "effect": "offering",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 6,
+    "title": "กระดาษโปสเตอร์มีรูปหน้าหลอนๆแปะไว้",
+    "effect": "face_poster",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 7,
+    "title": "กระดาษโปสเตอร์มีรูปหลอนๆแปะไว้",
+    "effect": "symbol_poster",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 8,
+    "title": "คนเดินในทางเดินสวมหน้ากากเกอิชา",
+    "effect": "masked_walker",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "supplied_model"
+  },
+  {
+    "id": 9,
+    "title": "ตัวเราส่องกระจกแต่ในกระจกเป็นผี",
+    "effect": "ghost_reflection",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 10,
+    "title": "มีคนแง้มประตูมองเราจากห้องน้ำชาย",
+    "effect": "toilet_peeper",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 11,
+    "title": "ถ้าระหว่างทางเดินมีเสียงเดินตามมาจากข้างหลัง ให้วื่งหนี",
+    "effect": "following_steps",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 12,
+    "title": "ไฟกระพริบเป็นจังหวะ",
+    "effect": "flickering_lights",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 13,
+    "title": "กระดานในห้องมีรอยเลือดหรือบางอย่างเขียนไว้",
+    "effect": "bloody_board",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 14,
+    "title": "ลำโพงประกาศหาย",
+    "effect": "missing_speaker",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 15,
+    "title": "ลำดับห้องผิดเช่น ตอนนี้อยู่ห้อง 2 ควรไปห้อง 3 แต่ไปห้อง 6",
+    "effect": "wrong_room",
+    "enabled": false,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 16,
+    "title": "frame กระจกหาย",
+    "effect": "missing_mirror_frame",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 17,
+    "title": "ประตูหายเหลือแค่กรอบประตูเข้าห้อองหรือเป็นสี่เหลี่ยมโล่งๆ",
+    "effect": "missing_door",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 18,
+    "title": "นอกหน้าต้างมีคนมองเราอยู่",
+    "effect": "window_watcher",
+    "enabled": false,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 19,
+    "title": "คนที่เดินผ่านไปมา ตัวเล็กผิดปกติ",
+    "effect": "small_walker",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 20,
+    "title": "ไฟดับ",
+    "effect": "blackout",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 21,
+    "title": "ก่อนถึงทางเลี้ยวมีคนสีเดียวกับกำแพงออกมาต่อยผู้เล่น ให้วิ่งหนีจนกว่าจะหายไป",
+    "effect": "wall_attacker",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 22,
+    "title": "เสียงเคาะประตูจากในห้องเรียน",
+    "effect": "knocking",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 23,
+    "title": "มีกระดาษแปะเต็มกำแพง",
+    "effect": "paper_wall",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 24,
+    "title": "ถังดับเพลิงหาย",
+    "effect": "missing_extinguisher",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 25,
+    "title": "มีมือยื่นออกมาจากถังขยะ",
+    "effect": "bin_hand",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 26,
+    "title": "ก็อกน้ำเปิดน้ำทิ้งไว้ แล้วเป็นสีเลือด",
+    "effect": "blood_tap",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "prototype"
+  },
+  {
+    "id": 27,
+    "title": "ป้ายห้ามวิ่งและชายที่เดินตามหลัง — ต้องเดินไปข้างหน้าต่อไป",
+    "effect": "no_running_follower",
+    "enabled": true,
+    "weight": 1,
+    "min_room": 2,
+    "art_status": "supplied_model"
+  }
+]
