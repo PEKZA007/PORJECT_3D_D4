@@ -42,3 +42,4 @@ static func mount_level(level: Node3D) -> void:
 	var shift := LEFT_WALL + .015 - mesh_bounds(bin).position.x
 	bin.position.x += shift
 	props.get_node("Hand").position.x += shift
+

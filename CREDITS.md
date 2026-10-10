@@ -1,5 +1,11 @@
 # Credits / Attribution
 
+## ทีมพัฒนาเกม
+
+- นาย กฤตภัค สร้อยแก้ว — 683380281-1 — Level Design & Anomaly Design
+- นางสาวธวัลรัตน์ นิยมพงษ์ — 683380081-9 — Story Design & Project Manager
+- นายปีติภัทร มีคำนิล — 683380306-1 — Programmer & Tester
+
 ## Replacement sink — 6 October 2026
 
 **Sink** by **KIFIR** (https://sketchfab.com/kifir), licensed **CC BY 4.0** (http://creativecommons.org/licenses/by/4.0/), as recorded in the supplied GLB metadata.
@@ -55,4 +61,6 @@ The original GLBs are preserved in assets/models. Adaptations: selected meshes, 
 - [TF2 HD] Fire extinguisher — JotC (https://sketchfab.com/IceFredd). License recorded in source: SKETCHFAB Standard (https://sketchfab.com/licenses). Source: https://sketchfab.com/3d-models/tf2-hd-fire-extinguisher-1256e6e8db23418c99a79621d641fa26.
 
 Audio supplied by the user: The Surreal Truth.mp3 (looping background music) and japanese school bell Sound Effect HD.mp3 (interactive positional bell). Author and license were not supplied; no license is inferred from filenames. Other effects remain synthesized prototype audio.
+
+Return-to-room-one scare: user-supplied `nickpanek-jump-scare-sound-effect-ai-made-sfx-473363.mp3`, used as `assets/audio/return_scare.mp3`. Author and license have not been verified from the supplied file; the filename is preserved here for reference.
 

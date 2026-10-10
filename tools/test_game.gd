@@ -25,6 +25,7 @@ func run() -> void:
 	check(not Rules.evaluate(7, 7, false, true, 0, bell_rooms).won, "Final backward exit does not win")
 	check(not Rules.evaluate(6, 7, false, false, 0, bell_rooms).won, "Room 8 is no longer the exit")
 	var game = load("res://scenes/main.tscn").instantiate()
+	game.progress.path = "res://test_game_progress.cfg"
 	root.add_child(game)
 	await process_frame
 	check(not game.running and not game.player.enabled, "Title freezes player")
@@ -145,6 +146,7 @@ func run() -> void:
 	check(not game.level.has_node("Props/NextNumber") and not game.level.has_node("Props/ExitSign"), "Removed rooftop and next-room signs stay absent")
 	game.running = true
 	game.choose_exit(false)
+	game.cutscene.finish()
 	check(not game.running and game.hud.mode == "win", "Final-room game integration wins")
 	check(game.hud.menu_title.text == "07 / EXIT", "Victory title uses room 7")
 	var roof_exit: Vector3 = game.level.get_node("ForwardExit").global_position
@@ -164,6 +166,7 @@ func run() -> void:
 	game.queue_free()
 	await process_frame
 	await create_timer(0.2).timeout
+	DirAccess.remove_absolute("res://test_game_progress.cfg")
 	print("RESULT: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
 

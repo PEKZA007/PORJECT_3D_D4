@@ -43,22 +43,16 @@ func setup_new_props() -> void:
 	var charm := Node3D.new()
 	charm.name = "CharmPickup"
 	props.add_child(charm)
-	charm.position = Vector3(.65, 1.1, 38.5)
+	charm.position = Vector3(0, .02, 20)
 	var art = preload("res://assets/models/props/omamori.scn").instantiate()
 	charm.add_child(art)
-	art.rotation_degrees.y = 90
-	preload("res://scripts/prop_mounting.gd").mount_right(charm)
-	var label := Label3D.new()
-	label.text = "เครื่องราง\n[E] เก็บ"
-	label.font_size = 40
-	label.pixel_size = .002
-	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	label.position.y = .28
-	charm.add_child(label)
+	art.rotation_degrees.x = 90
+	var bounds: AABB = preload("res://scripts/prop_mounting.gd").mesh_bounds(art)
+	art.position -= Vector3(bounds.get_center().x, bounds.position.y, bounds.get_center().z)
 	charm.hide()
 	var sign := Label3D.new()
 	sign.name = "NoRunningSign"
-	sign.text = "ห้ามวิ่ง\nNO RUNNING\nเดินไปข้างหน้าต่อไป"
+	sign.text = preload("res://scripts/localization.gd").t("ห้ามวิ่ง\nNO RUNNING\nเดินไปข้างหน้าต่อไป")
 	sign.font_size = 64
 	sign.pixel_size = .002
 	sign.modulate = Color(.65, .04, .025)
@@ -215,4 +209,5 @@ func _exit_tree() -> void:
 		if surface.material_override is StandardMaterial3D:
 			surface.material_override.albedo_texture = null
 		mirror_view.world_3d = null
+
 

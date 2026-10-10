@@ -21,6 +21,7 @@ func shot(name_hint: String) -> void:
 func run() -> void:
 	root.size = Vector2i(1280, 800)
 	game = load("res://scenes/main.tscn").instantiate()
+	game.progress.path = "res://test_seven_progress.cfg"
 	root.add_child(game)
 	await process_frame
 	game.start_run()
@@ -34,6 +35,7 @@ func run() -> void:
 	for i in 40:
 		game.reset_charm()
 		check(game.charm_room >= 1 and game.charm_room <= 7, "Charm roll stays within seven rooms")
+		check(game.charm_position.x >= -.45 and game.charm_position.x <= .15 and game.charm_position.z >= 2 and game.charm_position.z <= 32, "Charm stays on central corridor floor")
 	# Every possible charm room, including the safe first room and final exit.
 	for chosen_room in range(1, 8):
 		game.charm_collected = false
@@ -42,17 +44,26 @@ func run() -> void:
 			game.load_room(room, 0)
 			check(game.level.prop("CharmPickup").visible == (room == chosen_room), "Exactly one charm room")
 		game.load_room(chosen_room, 0)
-		game.player.position = Vector3(-.2, .02, 39.1)
+		game.player.position = game.level.prop("CharmPickup").position + Vector3(0, 0, 1.2)
 		game.player.camera.look_at(game.level.prop("CharmPickup").global_position)
 		await physics_frame
+		var charm_pos: Vector3 = game.level.prop("CharmPickup").global_position
+		var floor_hit := game.get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(charm_pos + Vector3.UP * .3, charm_pos - Vector3.UP, 1))
+		check(not floor_hit.is_empty() and floor_hit.normal.y > .7 and absf(floor_hit.position.y - charm_pos.y) < .06, "Random charm rests above reachable corridor floor")
 		game.update_interaction()
 		check(game.target == "CharmPickup", "Charm reachable through normal interaction")
+		check(game.hud.prompt.text.is_empty() and game.level.prop("CharmPickup").find_children("*", "Label3D", true, false).is_empty(), "Charm has no text labels or prompt")
 		game.interact()
 		check(game.charm_collected and not game.level.prop("CharmPickup").visible, "Charm pickup")
 		game.load_room(7, 0)
 		check(game.charm_collected and not game.level.prop("CharmPickup").visible, "Inventory persists without respawn")
 	game.running = true
 	game.choose_exit(false)
+	check(game.hud.mode == "cutscene" and game.transitioning, "True cinematic starts")
+	game.cutscene.clock_time = 16.0
+	game.cutscene.update_shot(.1)
+	check(game.cutscene.home_shown and game.cutscene.animator.current_animation == "Idle", "True ending reaches normal life at home")
+	game.cutscene.finish()
 	check(game.ending == "true" and game.hud.menu_subtitle.text == "TRUE ENDING", "Collected charm yields true ending")
 	game.hud.open_settings()
 	game.hud.close_settings()
@@ -62,6 +73,11 @@ func run() -> void:
 	check(not game.charm_collected and game.ending.is_empty(), "New game clears inventory and ending")
 	game.load_room(7, 0)
 	game.choose_exit(false)
+	check(game.hud.mode == "cutscene" and not game.level.prop("Walker").visible, "Player replaces NPC in cinematic")
+	game.cutscene.clock_time = 6.0
+	game.cutscene.update_shot(.1)
+	check(game.cutscene.actor.rotation.y > 3.0, "Replacement player turns back on patrol")
+	game.cutscene.finish()
 	check(game.ending == "normal" and game.hud.menu_subtitle.text == "NORMAL ENDING", "No charm yields normal ending")
 	await shot("normal_ending")
 	game.start_run()
@@ -138,5 +154,7 @@ func run() -> void:
 	check(game.player.sprint_allowed and not game.level.prop("NoRunningSign").visible and not game.level.prop("Pursuer").visible, "Event cleanup")
 	game.queue_free()
 	await process_frame
+	DirAccess.remove_absolute("res://test_seven_progress.cfg")
 	print("SEVEN ENDINGS: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+

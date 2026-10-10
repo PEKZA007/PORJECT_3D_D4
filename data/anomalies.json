@@ -154,12 +154,12 @@
   },
   {
     "id": 18,
-    "title": "นอกหน้าต้างมีคนมองเราอยู่",
+    "title": "มีคนยืนมองจากนอกหน้าต่าง",
     "effect": "window_watcher",
-    "enabled": false,
+    "enabled": true,
     "weight": 1,
     "min_room": 2,
-    "art_status": "prototype"
+    "art_status": "supplied_model"
   },
   {
     "id": 19,

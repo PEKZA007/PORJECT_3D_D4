@@ -103,3 +103,7 @@ Paper note UI: rendered and inspected docs/note-ui.png. MENU AND HALLWAY: PASS i
 - Reviewed actual rendered images: `seven_masked_walker.png`, `seven_no_running.png`, `seven_true_ending.png`, `seven_normal_ending.png`.
 - Design decisions and editing locations: `SEVEN_ENDINGS_TH.md`. Charm is consumed implicitly at the true ending; a failed run clears it and rerolls its room. Event 27 starts after the bell so the required interaction can be completed before the follower appears.
 
+# Window watcher visibility — 11 October 2026
+
+Event 18 is enabled again. The opaque backing wall has a permanent opening behind one window; its original continuous collision barrier remains. The watcher faces the corridor, uses a standing animation pose, and has a local face light that hides with the actor on reset. `tools/capture_watcher.gd` verifies reset and collision, and captures `watcher_approach.png` and `watcher_no_flashlight.png`. The older 27-image gallery predates this correction.
+

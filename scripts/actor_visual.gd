@@ -100,3 +100,4 @@ func update_offer_position() -> void:
 		var hand: Vector3 = offer_skeleton.to_global(offer_skeleton.get_bone_global_pose(offer_hand).origin)
 		get_node("Offer").global_position = hand + Vector3(0, -.11, 0)
 
+

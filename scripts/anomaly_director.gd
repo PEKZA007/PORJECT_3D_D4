@@ -21,6 +21,7 @@ var rng := RandomNumberGenerator.new()
 var recent: Array[int] = []
 var door_closed_position := Vector3.ZERO
 var follower_active: bool = false
+var endless_mode := false
 var forward_progress: float = 0.0
 
 func setup(school: Node3D, actor: CharacterBody3D, audio: Node, settings: Resource) -> void:
@@ -48,7 +49,7 @@ func remember(node: Node) -> void:
 		remember(child)
 
 func select_anomaly(room: int) -> int:
-	if room >= config.final_room or (room == 1 and config.first_room_safe):
+	if (not endless_mode and room >= config.final_room) or (room == 1 and config.first_room_safe):
 		return 0
 	if config.forced_anomaly >= 0:
 		return config.forced_anomaly
@@ -81,8 +82,8 @@ func select_anomaly(room: int) -> int:
 func title(id: int) -> String:
 	for entry in definitions:
 		if int(entry.id) == id:
-			return entry.title
-	return "ทางเดินปกติ"
+			return preload("res://scripts/localization.gd").anomaly(id, entry.title)
+	return preload("res://scripts/localization.gd").t("ทางเดินปกติ")
 
 func reset_room(room: int, id: int) -> void:
 	for state in snapshots:
@@ -95,6 +96,7 @@ func reset_room(room: int, id: int) -> void:
 			n.text = state.text
 			n.modulate = state.modulate
 	level.set_room(room)
+	level.prop("NoRunningSign").text = preload("res://scripts/localization.gd").t("ห้ามวิ่ง\nNO RUNNING\nเดินไปข้างหน้าต่อไป")
 	level.set_lighting(1.2)
 	sound.stop_events()
 	active_id = id
@@ -135,7 +137,9 @@ func reset_room(room: int, id: int) -> void:
 		15: pass # Legacy event disabled: next-room sign removed.
 		16: level.prop("Mirror/Frame").hide()
 		17: level.prop("Door").hide()
-		18: level.prop("WindowWatcher").show()
+		18:
+			level.prop("WindowWatcher").show()
+			level.prop("WindowWatcher").animate(.25, "Walk")
 		19: level.prop("Walker").scale = Vector3.ONE * 0.48
 		20: level.set_lighting(0.0)
 		23:
@@ -150,7 +154,7 @@ func reset_room(room: int, id: int) -> void:
 			level.prop("NoRunningSign").show()
 			level.prop("Walker").hide()
 	level.update_door_collision()
-	if room >= config.final_room:
+	if not endless_mode and room >= config.final_room:
 		level.prop("Walker").hide()
 		level.set_lighting(1.8)
 
@@ -193,7 +197,7 @@ func tick(delta: float) -> void:
 					for part in pursuer.get_children():
 						if part is MeshInstance3D:
 							paint(part, Color("8c998b"))
-				warning.emit("วิ่งหนีจนกว่าเสียงฝีเท้าจะหยุด!  [SHIFT]")
+				warning.emit(preload("res://scripts/localization.gd").t("วิ่งหนีจนกว่าเสียงฝีเท้าจะหยุด!  [SHIFT]"))
 			if chase_active:
 				chase_elapsed += delta
 				var pursuer: Node3D = level.prop("Pursuer")
@@ -207,13 +211,13 @@ func tick(delta: float) -> void:
 					sound.play_at("step", pursuer.global_position, 3.0, 0.7)
 					last_sound = elapsed
 				if pursuer.position.distance_to(target) < 0.48:
-					danger.emit("คุณถูกตามทัน — กด SHIFT ค้างเพื่อวิ่งหนี")
+					danger.emit(preload("res://scripts/localization.gd").t("คุณถูกตามทัน — กด SHIFT ค้างเพื่อวิ่งหนี"))
 					return
 				if chase_elapsed >= config.chase_seconds:
 					chase_active = false
 					chase_finished = true
 					pursuer.hide()
-					warning.emit("เสียงฝีเท้าหายไปแล้ว… จำกฎเรื่องความผิดปกติไว้")
+					warning.emit(preload("res://scripts/localization.gd").t("เสียงฝีเท้าหายไปแล้ว… จำกฎเรื่องความผิดปกติไว้"))
 		12: level.set_lighting(0.08 if fmod(elapsed, 1.5) < 0.23 else 1.2)
 		22:
 			if elapsed - last_sound > 2.2:
@@ -236,13 +240,13 @@ func tick_no_running(delta: float) -> void:
 	# Allow small corrections, but walking back against the sign fails the encounter.
 	forward_progress = minf(forward_progress, player.position.z)
 	if player.position.z > forward_progress + 1.0:
-		danger.emit("ป้ายบอกให้เดินไปข้างหน้าต่อไป")
+		danger.emit(preload("res://scripts/localization.gd").t("ป้ายบอกให้เดินไปข้างหน้าต่อไป"))
 		return
 	var follower: Node3D = level.prop("Pursuer")
 	var destination := Vector3(player.position.x, 0, player.position.z)
 	follower.position = follower.position.move_toward(destination, config.walk_speed * .9 * delta)
 	if follower.position.distance_to(destination) < .6:
-		danger.emit("คุณหยุดเดินจนชายข้างหลังตามทัน")
+		danger.emit(preload("res://scripts/localization.gd").t("คุณหยุดเดินจนชายข้างหลังตามทัน"))
 		return
 	follower.look_at(destination + Vector3(0, .001, 0))
 	follower.animate(delta, "Walk")
@@ -263,9 +267,10 @@ func check_eyes(delta: float) -> void:
 	if walker.visible and facing and looking and to_head.length() < 4.0 and active_id != 8:
 		eye_timer += delta
 		if eye_timer > 0.35:
-			warning.emit("อย่าสบตา — หันหน้าหนี")
+			warning.emit(preload("res://scripts/localization.gd").t("อย่าสบตา — หันหน้าหนี"))
 		if eye_timer >= config.eye_contact_seconds:
 			eye_timer = 0.0
-			danger.emit("คุณสบตากับคนในทางเดินนานเกินไป")
+			danger.emit(preload("res://scripts/localization.gd").t("คุณสบตากับคนในทางเดินนานเกินไป"))
 	else:
 		eye_timer = maxf(0.0, eye_timer - delta * 2.0)
+

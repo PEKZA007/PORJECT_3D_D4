@@ -8,6 +8,13 @@ extends CharacterBody3D
 var enabled: bool = false
 var sprinting: bool = false
 var sprint_allowed: bool = true
+var stamina_enabled := false
+var stamina_capacity := 6.0
+var stamina := 6.0
+var stamina_recovery := .8
+var stamina_delay := 1.5
+var stamina_rest := 0.0
+var exhausted := false
 var step_clock: float = 0.0
 signal footstep(sprinting: bool)
 @onready var camera: Camera3D = $Camera3D
@@ -23,7 +30,7 @@ func _physics_process(delta: float) -> void:
 		return
 	var input := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	var direction := (transform.basis * Vector3(input.x, 0, input.y)).normalized()
-	sprinting = sprint_allowed and Input.is_action_pressed("sprint") and input.length() > 0.1
+	update_stamina(delta, sprint_allowed and Input.is_action_pressed("sprint") and input.length() > .1)
 	var speed := sprint_speed if sprinting else walk_speed
 	velocity.x = direction.x * speed
 	velocity.z = direction.z * speed
@@ -53,6 +60,34 @@ func reset_at(spawn: Transform3D) -> void:
 	camera.rotation = Vector3.ZERO
 	camera.position = Vector3(0, eye_height, -eye_forward_offset)
 	step_clock = 0.0
+	reset_stamina()
+
+func reset_stamina() -> void:
+	stamina = stamina_capacity
+	stamina_rest = 0.0
+	exhausted = false
+	sprinting = false
+
+func update_stamina(delta: float, wants_sprint: bool) -> void:
+	if not enabled:
+		return
+	if not stamina_enabled:
+		sprinting = wants_sprint
+		return
+	if exhausted and stamina >= stamina_capacity * .25:
+		exhausted = false
+	sprinting = wants_sprint and sprint_allowed and not exhausted and stamina > 0.0
+	if sprinting:
+		stamina = maxf(0.0, stamina - delta)
+		stamina_rest = 0.0
+		if stamina <= 0.0:
+			exhausted = true
+			sprinting = false
+	else:
+		var previous_rest := stamina_rest
+		stamina_rest += delta
+		var recovery_time := maxf(0.0, stamina_rest - maxf(previous_rest, stamina_delay))
+		stamina = minf(stamina_capacity, stamina + recovery_time * stamina_recovery)
 
 func try_step_up(motion: Vector3) -> void:
 	if motion.length_squared() < 0.000001 or not is_on_floor():
@@ -109,3 +144,4 @@ func update_eye_position() -> void:
 	camera.position.z = -eye_forward_offset
 	if not hit.is_empty():
 		camera.position.z = -maxf(0.0, origin.distance_to(hit.position) - .055)
+
