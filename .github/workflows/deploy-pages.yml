@@ -1,0 +1,101 @@
+name: Export Godot and deploy Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/**'
+      - 'data/**'
+      - 'scenes/**'
+      - 'scripts/**'
+      - 'shaders/**'
+      - 'project.godot'
+      - 'export_presets.cfg'
+      - 'icon.svg'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+env:
+  GODOT_VERSION: '4.7.2'
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v6
+
+      - name: Install Godot and matching export templates
+        shell: bash
+        run: |
+          set -euo pipefail
+          release="https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable"
+          curl --fail --location --retry 3 "$release/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip" -o "$RUNNER_TEMP/godot.zip"
+          curl --fail --location --retry 3 "$release/Godot_v${GODOT_VERSION}-stable_export_templates.tpz" -o "$RUNNER_TEMP/templates.tpz"
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          chmod +x "$RUNNER_TEMP/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64"
+          echo "$RUNNER_TEMP/godot" >> "$GITHUB_PATH"
+          unzip -q "$RUNNER_TEMP/templates.tpz" -d "$RUNNER_TEMP/export-templates"
+          mkdir -p "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          cp -a "$RUNNER_TEMP/export-templates/templates/." "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/"
+
+      - name: Import and export the Web game
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot="Godot_v${GODOT_VERSION}-stable_linux.x86_64"
+          "$godot" --version
+          "$godot" --headless --path . --editor --import
+          mkdir -p builds/web
+          "$godot" --headless --path . --export-release Web builds/web/index.html
+          touch builds/web/.nojekyll
+
+      - name: Verify exported files and Pages size
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          root = Path('builds/web')
+          for name in ('index.html', 'index.js', 'index.wasm', 'index.pck'):
+              file = root / name
+              if not file.is_file() or file.stat().st_size == 0:
+                  raise SystemExit(f'Missing or empty export: {name}')
+          html = (root / 'index.html').read_text()
+          if not re.search(r'"(?:experimentalVK|fileSizes|executable)"', html):
+              raise SystemExit('Exported HTML does not contain Godot configuration')
+          size = sum(p.stat().st_size for p in root.rglob('*') if p.is_file())
+          print(f'Web export: {size / 1024**2:.1f} MiB')
+          if size >= 1_000_000_000:
+              raise SystemExit('Web export exceeds the 1 GB Pages site limit')
+          PY
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: builds/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Deploy the game
+        id: deployment
+        uses: actions/deploy-pages@v4
