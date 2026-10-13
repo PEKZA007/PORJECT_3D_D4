@@ -29,7 +29,7 @@ func run() -> void:
 	root.add_child(game)
 	await process_frame
 	check(not game.running and not game.player.enabled, "Title freezes player")
-	game.start_run()
+	game.start_run(false)
 	game.running = false
 	game.player.enabled = false
 	check(game.director.active_id == 0, "First room is safe")
@@ -112,6 +112,11 @@ func run() -> void:
 		game.player.position.z = game.level.footsteps_trigger_z - 0.1 if id == 11 else game.level.attacker_trigger_z - 0.1
 		game.player.rotation.y = 0.0 if id == 11 else PI
 		game.player.camera.rotation.x = -0.5
+		# Start the chase before moving away from its trigger. Otherwise two
+		# physics ticks before the first render tick can skip the test's narrow
+		# starting position, leaving Chase 21 untriggered for the whole test.
+		game.director.tick(0.0)
+		check(game.director.chase_active, "Chase %d starts before the escape simulation" % id)
 		Input.action_press("move_forward")
 		Input.action_press("sprint")
 		await create_timer(3.2).timeout
@@ -133,7 +138,7 @@ func run() -> void:
 	await create_timer(1.1).timeout
 	# Walk all twelve passage decisions and the thirteenth-room exit.
 	game.config.forced_anomaly = 0
-	game.start_run()
+	game.start_run(false)
 	for expected_room in range(1, 7):
 		check(game.room == expected_room, "Complete route reaches room %d" % expected_room)
 		if bell_rooms.has(expected_room):
@@ -161,7 +166,7 @@ func run() -> void:
 	check(game.level.door_opened_by_player, "Classroom door can be opened to explore")
 	game.load_room(2, 0)
 	check(not game.level.door_opened_by_player, "Manual classroom opening resets each round")
-	game.start_run()
+	game.start_run(false)
 	check(game.hud.mode == "playing" and game.running, "Restart after victory restores gameplay mode")
 	game.queue_free()
 	await process_frame
@@ -169,5 +174,6 @@ func run() -> void:
 	DirAccess.remove_absolute("res://test_game_progress.cfg")
 	print("RESULT: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+
 
 

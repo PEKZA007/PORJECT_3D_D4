@@ -30,6 +30,7 @@ var door_opened_by_player: bool = false
 
 func _ready() -> void:
 	setup_new_props()
+	setup_poster_art()
 	for light in lights.get_children():
 		if light is OmniLight3D:
 			authored_light_energy[light] = light.light_energy
@@ -38,6 +39,31 @@ func _ready() -> void:
 		prepare_model($SchoolModel)
 	if has_node("ClassroomLuminaire"):
 		fluorescent_materials.append($ClassroomLuminaire.material_override)
+
+func setup_poster_art() -> void:
+	var artwork := [
+		load("res://assets/art/poster-notice.png"),
+		load("res://assets/art/poster-quiet.png"),
+		load("res://assets/art/poster-cleaning.png")
+	]
+	for group_name in ["Posters", "ExtraPosters"]:
+		var index := 0
+		for poster in props.get_node(group_name).get_children():
+			var paper: MeshInstance3D = poster.get_node("Paper")
+			var face := MeshInstance3D.new()
+			face.name = "PosterArtwork"
+			var quad := QuadMesh.new()
+			quad.size = Vector2(paper.mesh.size.z, paper.mesh.size.y)
+			face.mesh = quad
+			face.position.x = -paper.mesh.size.x / 2.0 - 0.001
+			face.rotation_degrees.y = -90
+			var material := StandardMaterial3D.new()
+			material.albedo_texture = artwork[index % artwork.size()]
+			material.roughness = 0.95
+			face.material_override = material
+			poster.add_child(face)
+			poster.get_node("Text").hide()
+			index += 1
 
 func setup_new_props() -> void:
 	var charm := Node3D.new()

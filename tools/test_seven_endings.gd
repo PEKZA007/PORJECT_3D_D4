@@ -24,7 +24,7 @@ func run() -> void:
 	game.progress.path = "res://test_seven_progress.cfg"
 	root.add_child(game)
 	await process_frame
-	game.start_run()
+	game.start_run(false)
 	game.running = false
 	game.player.enabled = false
 	check(game.config.final_room == 7, "Seven-room default")
@@ -69,7 +69,7 @@ func run() -> void:
 	game.hud.close_settings()
 	check(game.hud.menu_subtitle.text == "TRUE ENDING", "Ending label survives settings")
 	await shot("true_ending")
-	game.start_run()
+	game.start_run(false)
 	check(not game.charm_collected and game.ending.is_empty(), "New game clears inventory and ending")
 	game.load_room(7, 0)
 	game.choose_exit(false)
@@ -80,7 +80,7 @@ func run() -> void:
 	game.cutscene.finish()
 	check(game.ending == "normal" and game.hud.menu_subtitle.text == "NORMAL ENDING", "No charm yields normal ending")
 	await shot("normal_ending")
-	game.start_run()
+	game.start_run(false)
 	game.running = false
 	game.player.enabled = false
 	game.load_room(2, 8)
@@ -157,4 +157,5 @@ func run() -> void:
 	DirAccess.remove_absolute("res://test_seven_progress.cfg")
 	print("SEVEN ENDINGS: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+
 

@@ -24,7 +24,7 @@ func run() -> void:
 		root.get_texture().get_image().save_png("res://docs/team_credits.png")
 	game.hud.close_credits()
 	assert(game.hud.mode == "title")
-	game.start_run()
+	game.start_run(false)
 	game.pause_game()
 	game.hud.open_credits()
 	var escape := InputEventAction.new()
@@ -42,3 +42,4 @@ func run() -> void:
 		DirAccess.remove_absolute("res://credits_preview_settings.cfg")
 	print("CREDITS: PASS")
 	quit()
+

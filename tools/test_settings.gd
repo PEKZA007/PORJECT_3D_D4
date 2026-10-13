@@ -59,7 +59,7 @@ func run() -> void:
 	check(not hud.brightness_filter.visible, "Default brightness disables correction")
 	check(hud.music_volume_slider.value == 75, "Reset restores music default")
 	hud.close_settings()
-	game.start_run()
+	game.start_run(false)
 	game.pause_game()
 	check(not game.sound.music.stream_paused and game.sound.ambient.stream_paused, "Music continues for settings preview while gameplay audio pauses")
 	hud.open_settings()
@@ -78,3 +78,4 @@ func run() -> void:
 		DirAccess.remove_absolute("res://test_settings_progress.cfg")
 	print("SETTINGS: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+

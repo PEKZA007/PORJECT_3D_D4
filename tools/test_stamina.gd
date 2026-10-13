@@ -17,7 +17,7 @@ func run() -> void:
 	game.get_node("HUD").settings_path = "res://test_stamina_settings.cfg"
 	root.add_child(game)
 	await process_frame
-	game.start_run()
+	game.start_run(false)
 	var player = game.player
 	check(player.stamina_enabled and game.hud.stamina_panel.visible, "Normal uses stamina meter")
 	player.update_stamina(3.0, true)
@@ -46,16 +46,17 @@ func run() -> void:
 	check(player.stamina == player.stamina_capacity and not player.exhausted, "New room restores stamina")
 	game.return_to_title()
 	game.hud.mode_picker.select(0)
-	game.start_run()
+	game.start_run(false)
 	player.update_stamina(100, true)
 	check(not player.stamina_enabled and player.sprinting and not game.hud.stamina_panel.visible, "Easy keeps unlimited sprint")
 	game.return_to_title()
 	game.progress.unlocked = true
 	game.hud.mode_picker.select(2)
-	game.start_run()
+	game.start_run(false)
 	player.update_stamina(100, true)
 	check(not player.stamina_enabled and player.sprinting, "Endless keeps unlimited sprint")
 	game.queue_free()
 	await process_frame
 	print("STAMINA: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+

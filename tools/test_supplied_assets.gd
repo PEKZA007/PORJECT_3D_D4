@@ -18,7 +18,7 @@ func run() -> void:
 	game = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	await process_frame
-	game.start_run()
+	game.start_run(false)
 	game.running = false
 	game.player.enabled = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -74,3 +74,4 @@ func run() -> void:
 	await process_frame
 	print("SUPPLIED ASSETS: PASS (models, music loop, bell, overlap, pause/resume, reset)")
 	quit()
+

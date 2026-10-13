@@ -6,7 +6,7 @@ func run() -> void:
 	var game = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	await process_frame
-	game.start_run()
+	game.start_run(false)
 	game.running = false
 	game.player.enabled = false
 	game.player.position = Vector3(-.55, .02, -7.8)
@@ -21,3 +21,4 @@ func run() -> void:
 	game.free()
 	print("SINK: model rendered; event 26 and reset passed")
 	quit()
+

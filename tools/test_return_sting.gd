@@ -25,7 +25,7 @@ func run() -> void:
 	game.get_node("HUD").settings_path = "res://test_return_settings.cfg"
 	root.add_child(game)
 	await process_frame
-	game.start_run()
+	game.start_run(false)
 	check(count_stings() == 0, "Starting game does not play scare")
 	game.load_room(2, 0)
 	game.choose_exit(false)
@@ -37,7 +37,7 @@ func run() -> void:
 	game.set_volume(.75)
 	await create_timer(1).timeout
 	game.return_to_title()
-	game.start_run()
+	game.start_run(false)
 	check(count_stings() == 0, "Menu and restart do not play scare")
 	game.load_room(2, 0)
 	game.rings = 1
@@ -48,7 +48,7 @@ func run() -> void:
 	game.return_to_title()
 	game.progress.unlocked = true
 	game.hud.mode_picker.select(2)
-	game.start_run()
+	game.start_run(false)
 	game.fail_run("endless")
 	check(game.hud.mode == "win" and count_stings() == 0, "Endless result is not a return-to-room-one scare")
 	game.queue_free()
@@ -57,3 +57,4 @@ func run() -> void:
 		DirAccess.remove_absolute("res://test_return_progress.cfg")
 	print("RETURN STING: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+

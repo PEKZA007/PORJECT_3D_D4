@@ -30,7 +30,7 @@ func run() -> void:
 	game = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	await physics_frame
-	game.start_run()
+	game.start_run(false)
 	game.running = false
 	game.player.enabled = true
 	if "--annex-only" in OS.get_cmdline_user_args():
@@ -83,3 +83,4 @@ func run() -> void:
 	await create_timer(0.2).timeout
 	print("MAP RESULT: ", "FAIL" if failed else "PASS")
 	quit(1 if failed else 0)
+

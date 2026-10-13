@@ -26,9 +26,10 @@ func run() -> void:
 	DirAccess.make_dir_recursive_absolute(OUT)
 	root.size = Vector2i(1280,800)
 	game = load("res://scenes/main.tscn").instantiate()
+	game.progress.path = "res://tmp/anomaly_capture_progress.cfg"
 	root.add_child(game)
 	await process_frame
-	game.start_run()
+	game.start_run(false)
 	game.running = false
 	game.player.enabled = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -125,3 +126,4 @@ func make_sheets() -> void:
 		contents.free()
 	page.free()
 	viewport.free()
+

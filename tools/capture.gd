@@ -15,7 +15,7 @@ func run() -> void:
 	root.add_child(game)
 	await create_timer(1.5).timeout
 	await save_frame("res://docs/title-screen.png")
-	game.start_run()
+	game.start_run(false)
 	game.running = false
 	game.player.enabled = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -64,3 +64,4 @@ func run() -> void:
 	game.queue_free()
 	await process_frame
 	quit()
+

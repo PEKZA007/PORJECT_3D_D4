@@ -34,7 +34,7 @@ func run() -> void:
 	game.hud.close_settings()
 	check(game.hud.primary.text == "Enter the corridor     →", "Main menu translated")
 	game.hud.mode_picker.select(0)
-	game.start_run()
+	game.start_run(false)
 	check(game.hud.hint_label.text.contains("Remember this corridor"), "Easy dialogue translated")
 	game.pause_game("note")
 	check(game.hud.note_text.text.contains("Trust no one"), "Gameplay rules translated")
@@ -67,7 +67,7 @@ func run() -> void:
 	game = make_game()
 	await process_frame
 	check(game.hud.language_picker.selected == 1 and game.hud.primary.text == "Enter the corridor     →", "English persists after reopening game")
-	game.start_run()
+	game.start_run(false)
 	game.load_room(7, 0)
 	game.choose_exit(false)
 	check(game.cutscene.caption.text.contains("corridor keeper"), "Ending subtitles translated")
@@ -80,3 +80,4 @@ func run() -> void:
 		DirAccess.remove_absolute(PROGRESS)
 	print("LANGUAGE: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+

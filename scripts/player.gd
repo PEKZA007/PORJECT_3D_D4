@@ -40,14 +40,17 @@ func _physics_process(delta: float) -> void:
 		velocity.y = -0.2
 	try_step_up(Vector3(velocity.x, 0, velocity.z) * delta)
 	move_and_slide()
-	update_body(delta)
+	var actual_speed := Vector2(get_real_velocity().x, get_real_velocity().z).length()
+	update_body(delta, actual_speed)
 	update_eye_position()
 	camera.position.y = move_toward(camera.position.y, eye_height, delta * 1.8)
-	if Vector2(velocity.x, velocity.z).length() > 0.5:
-		step_clock += delta
-		if step_clock > (0.3 if sprinting else 0.52):
+	if actual_speed > .5 and is_on_floor():
+		step_clock += delta * absf(body_playback_rate)
+		if step_clock > (.29 if sprinting else .475):
 			step_clock = 0.0
 			footstep.emit(sprinting)
+	else:
+		step_clock = 0.0
 	camera.fov = lerpf(camera.fov, 79.0 if sprinting else 74.0, delta * 5.0)
 
 func reset_at(spawn: Transform3D) -> void:
@@ -55,6 +58,8 @@ func reset_at(spawn: Transform3D) -> void:
 		body_motion = "Idle"
 		body_animator.play("Idle")
 		body_animator.advance(0)
+	body_playback_rate = 1.0
+	$BodyVisual.rotation.y = PI
 	global_transform = spawn
 	velocity = Vector3.ZERO
 	camera.rotation = Vector3.ZERO
@@ -111,8 +116,11 @@ func try_step_up(motion: Vector3) -> void:
 
 var body_animator: AnimationPlayer
 var body_motion: String = "Idle"
+var body_playback_rate := 1.0
+var pose_smoother := preload("res://scripts/pose_smoother.gd").new()
 func _ready() -> void:
 	body_animator = $BodyVisual/AnimationPlayer
+	pose_smoother.configure($BodyVisual)
 	body_animator.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
 	for mesh in $BodyVisual.find_children("*", "MeshInstance3D", true, false):
 		mesh.layers = 8
@@ -124,17 +132,38 @@ func _ready() -> void:
 		body_mesh.layers = 16
 		body_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		mesh.get_parent().add_child(body_mesh)
+	preload("res://scripts/anatomical_rig.gd").configure($BodyVisual)
+	preload("res://scripts/player_motion.gd").configure(body_animator)
 	camera.position = Vector3(0, eye_height, -eye_forward_offset)
 	camera.cull_mask = 1 | 2 | 16
 	body_animator.play("Idle")
 	body_animator.advance(0)
 
-func update_body(delta: float) -> void:
-	var next := "Idle" if Vector2(velocity.x, velocity.z).length() < .1 else ("Run" if sprinting else "Walk")
+func update_body(delta: float, movement_speed: float = -1.0) -> void:
+	if delta <= 0:
+		return
+	pose_smoother.capture()
+	var speed := Vector2(velocity.x, velocity.z).length() if movement_speed < 0 else movement_speed
+	var next := "Idle" if speed < .1 else ("Run" if sprinting else "Walk")
 	if next != body_motion:
+		var preserve_phase := body_motion in ["Walk", "Run"] and next in ["Walk", "Run"]
+		var phase := body_animator.current_animation_position / body_animator.current_animation_length
 		body_motion = next
-		body_animator.play(next, .18)
-	body_animator.advance(delta)
+		body_animator.play(next, .28)
+		if preserve_phase:
+			body_animator.seek(phase * body_animator.get_animation(next).length)
+	var local_motion := global_basis.inverse() * Vector3(velocity.x, 0, velocity.z)
+	var backward := local_motion.z > .1
+	var target_rate := 1.0 if next == "Idle" else clampf(speed / (sprint_speed if next == "Run" else walk_speed), .15, 1.6)
+	if backward and next != "Idle":
+		target_rate *= -1
+	body_playback_rate = lerpf(body_playback_rate, target_rate, 1 - exp(-delta * 12))
+	body_animator.advance(delta * body_playback_rate)
+	pose_smoother.apply(delta)
+	var yaw := 0.0
+	if speed > .1:
+		yaw = clampf(atan2(-local_motion.x, absf(local_motion.z)), -.5, .5)
+	$BodyVisual.rotation.y = lerp_angle($BodyVisual.rotation.y, PI + yaw, 1 - exp(-delta * 10))
 
 func update_eye_position() -> void:
 	var origin := global_position + Vector3.UP * camera.position.y

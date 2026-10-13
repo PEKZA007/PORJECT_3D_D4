@@ -79,9 +79,9 @@ var stamina_panel: HBoxContainer
 var stamina_bar: ProgressBar
 var stamina_active := false
 const TEAM_CREDITS := [
-	["นาย กฤตภัค สร้อยแก้ว", "683380281-1", "Level Design & Anomaly Design"],
-	["นางสาวธวัลรัตน์ นิยมพงษ์", "683380081-9", "Story Design & Project Manager"],
-	["นายปีติภัทร มีคำนิล", "683380306-1", "Programmer & Tester"]
+	["นาย กฤตภัค สร้อยแก้ว\nKittapak Soykeaw", "683380281-1", "Level Design & Anomaly Design"],
+	["นางสาวธวัลรัตน์ นิยมพงษ์\nThawanrat Niyompong", "683380081-9", "Story Design & Project Manager"],
+	["นายปีติภัทร มีคำนิล\nPitiphat Mikhamnin", "683380306-1", "Programmer & Tester"]
 ]
 const RESOLUTIONS := [Vector2i(960, 600), Vector2i(1152, 720), Vector2i(1280, 800), Vector2i(1440, 900), Vector2i(1600, 900), Vector2i(1920, 1080)]
 
@@ -757,12 +757,17 @@ func open_collection(progress: RefCounted, definitions: Array) -> void:
 			if progress.anomalies.has(int(entry.id)):
 				discovered += 1
 	collection_summary.text = preload("res://scripts/localization.gd").t("สิ่งผิดปกติ %d / %d   •   ฉากจบ %d / 2") % [discovered, total, progress.endings.size()]
+	text(collection_list, "INTRO — After Class" if preload("res://scripts/localization.gd").language == "en" else "INTRO — หลังเลิกเรียน", 26, ACCENT)
+	var intro_replay := button(collection_list, "▶ Watch intro again" if preload("res://scripts/localization.gd").language == "en" else "▶ ดูบทนำอีกครั้ง")
+	intro_replay.name = "Replay_intro"
+	intro_replay.pressed.connect(func(): ending_replay_requested.emit("intro"))
 	text(collection_list, preload("res://scripts/localization.gd").t("ฉากจบ"), 26, ACCENT)
 	for id in ["normal", "true"]:
 		var unlocked: bool = progress.endings.has(id)
 		var title := preload("res://scripts/localization.gd").t("NORMAL END — ผู้เฝ้าทางเดิน") if id == "normal" else preload("res://scripts/localization.gd").t("TRUE END — ชีวิตที่ได้คืนมา")
 		var story := preload("res://scripts/localization.gd").t("คุณแทนที่คนแปลกหน้า และเดินวนอยู่ในโรงเรียนต่อไป") if id == "normal" else preload("res://scripts/localization.gd").t("คุณออกจากโรงเรียน กลับบ้าน และใช้ชีวิตปกติได้อีกครั้ง")
 		var item := text(collection_list, title + "\n" + story if unlocked else preload("res://scripts/localization.gd").t("??? — ฉากจบที่ยังไม่ค้นพบ"), 20, PAPER if unlocked else MUTED)
+		item.name = "Ending_" + id
 		item.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		var replay := button(collection_list, preload("res://scripts/localization.gd").t("▶ ดูฉากจบอีกครั้ง") if unlocked else preload("res://scripts/localization.gd").t("ยังไม่ปลดล็อก"))
 		replay.name = "Replay_" + id

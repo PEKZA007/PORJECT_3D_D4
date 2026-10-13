@@ -89,7 +89,7 @@ func refresh_language() -> void:
 		elif play_mode == "endless":
 			finish_endless()
 
-func start_run() -> void:
+func start_run(show_intro: bool = true) -> void:
 	if transitioning:
 		return
 	if hud.mode == "title":
@@ -108,7 +108,19 @@ func start_run() -> void:
 	reset_charm()
 	director.recent.clear()
 	load_room(1, director.select_anomaly(1))
-	resume_game()
+	if show_intro:
+		transitioning = true
+		running = false
+		player.enabled = false
+		sound.set_paused(false)
+		cutscene = preload("res://scripts/ending_cutscene.gd").new()
+		add_child(cutscene)
+		cutscene.finished.connect(func():
+			transitioning = false
+			resume_game())
+		cutscene.begin(self, "intro")
+	else:
+		resume_game()
 
 func primary_action() -> void:
 	if hud.mode == "title" or hud.mode == "win":
@@ -379,7 +391,7 @@ func collect_encounter() -> void:
 		progress.discover(director.active_id)
 
 func replay_ending(id: String) -> void:
-	if transitioning or hud.mode != "collection" or not progress.endings.has(id):
+	if transitioning or hud.mode != "collection" or (id != "intro" and not progress.endings.has(id)):
 		return
 	transitioning = true
 	running = false
@@ -394,7 +406,7 @@ func replay_ending(id: String) -> void:
 	# Keep the original room, actor positions, and run inventory intact.
 	level.remove_child(level.environment)
 	add_child(replay_stage)
-	replay_stage.set_room(config.final_room)
+	replay_stage.set_room(1 if id == "intro" else config.final_room)
 	replay_stage.set_lighting(1.8)
 	sound.set_paused(false)
 	cutscene = preload("res://scripts/ending_cutscene.gd").new()

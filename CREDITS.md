@@ -2,9 +2,9 @@
 
 ## ทีมพัฒนาเกม
 
-- นาย กฤตภัค สร้อยแก้ว — 683380281-1 — Level Design & Anomaly Design
-- นางสาวธวัลรัตน์ นิยมพงษ์ — 683380081-9 — Story Design & Project Manager
-- นายปีติภัทร มีคำนิล — 683380306-1 — Programmer & Tester
+- นาย กฤตภัค สร้อยแก้ว / Kittapak Soykeaw — 683380281-1 — Level Design & Anomaly Design
+- นางสาวธวัลรัตน์ นิยมพงษ์ / Thawanrat Niyompong — 683380081-9 — Story Design & Project Manager
+- นายปีติภัทร มีคำนิล / Pitiphat Mikhamnin — 683380306-1 — Programmer & Tester
 
 ## Replacement sink — 6 October 2026
 

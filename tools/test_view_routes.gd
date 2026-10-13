@@ -10,7 +10,7 @@ func run() -> void:
 	var game = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	await process_frame
-	game.start_run()
+	game.start_run(false)
 	game.running = false
 	game.player.enabled = false
 	game.player.camera.rotation.x = -1.48
@@ -53,3 +53,4 @@ func run() -> void:
 	await process_frame
 	await create_timer(.2).timeout
 	quit(failures)
+

@@ -17,7 +17,7 @@ func run() -> void:
 	await shot("res://docs/settings.png")
 	game.hud.close_settings()
 	assert(game.hud.mode == "title" and not game.running)
-	game.start_run()
+	game.start_run(false)
 	game.pause_game()
 	var before: Vector3 = game.player.position
 	var time: float = game.elapsed
@@ -31,7 +31,7 @@ func run() -> void:
 	assert(game.running and game.player.enabled)
 	game.return_to_title()
 	assert(not game.started and not game.running and game.hud.mode == "title")
-	game.start_run()
+	game.start_run(false)
 	game.load_room(1, 0)
 	game.player.position = Vector3(0, 0.05, -10.8)
 	game.player.rotation.y = 0
@@ -65,3 +65,4 @@ func run() -> void:
 	await process_frame
 	await create_timer(0.2).timeout
 	quit()
+

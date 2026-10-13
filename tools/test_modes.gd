@@ -21,7 +21,7 @@ func run() -> void:
 	await process_frame
 	check(game.hud.mode_picker.is_item_disabled(2), "Endless starts locked")
 	game.hud.mode_picker.select(0)
-	game.start_run()
+	game.start_run(false)
 	check(game.play_mode == "easy" and game.hud.hint_label.visible, "Easy mode shows dialogue")
 	game.load_room(2, 4)
 	var hint: String = game.hud.hint_label.text
@@ -41,11 +41,11 @@ func run() -> void:
 	check(saved.unlocked, "Unlock persists on disk")
 	game.return_to_title()
 	game.hud.mode_picker.select(1)
-	game.start_run()
+	game.start_run(false)
 	check(game.play_mode == "normal" and game.hud.hint_label.text.is_empty(), "Normal has no hints")
 	game.return_to_title()
 	game.hud.mode_picker.select(2)
-	game.start_run()
+	game.start_run(false)
 	check(game.director.endless_mode and not game.level.prop("CharmPickup").visible, "Endless starts without story pickup")
 	game.load_room(7, 0)
 	game.choose_exit(false)
@@ -57,7 +57,7 @@ func run() -> void:
 	check(game.progress.best_rooms == 1 and not game.hud.share_text.is_empty(), "Record saved and share text generated")
 	saved.load_progress()
 	check(saved.best_rooms == 1, "Personal record persists")
-	game.start_run()
+	game.start_run(false)
 	game.load_room(9, 0)
 	game.rings = 1
 	game.choose_exit(false)
@@ -74,3 +74,4 @@ func run() -> void:
 	DirAccess.remove_absolute(saved.path)
 	print("MODES: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+

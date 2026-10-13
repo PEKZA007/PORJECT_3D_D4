@@ -5,7 +5,7 @@ func run() -> void:
 	var game = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	await process_frame
-	game.start_run()
+	game.start_run(false)
 	game.player.position = Vector3(0,.05,-10.5)
 	Input.action_press("move_forward")
 	await create_timer(.7).timeout
@@ -26,3 +26,4 @@ func run() -> void:
 	await process_frame
 	await create_timer(.2).timeout
 	quit()
+

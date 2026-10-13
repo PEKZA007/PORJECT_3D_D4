@@ -12,6 +12,8 @@ var chase_active: bool = false
 var chase_finished: bool = false
 var eye_timer: float = 0.0
 var walker_direction: float = -1.0
+var walker_speed := 0.0
+var walker_turn_time := 0.0
 var door_progress: float = 0.0
 var level: Node3D
 var player: CharacterBody3D
@@ -111,6 +113,8 @@ func reset_room(room: int, id: int) -> void:
 	player.sprinting = false
 	eye_timer = 0.0
 	walker_direction = -1.0
+	walker_speed = 0.0
+	walker_turn_time = 0.0
 	door_progress = 0.0
 	for actor_name in ["Walker", "Peeper", "WindowWatcher", "Pursuer"]:
 		level.prop(actor_name).apply_variant("masked" if id == 8 and actor_name == "Walker" else ("offering" if id == 5 and actor_name == "Walker" else ("attacker" if actor_name == "Pursuer" and id != 27 else "normal")))
@@ -166,16 +170,26 @@ func paint(node: MeshInstance3D, color: Color) -> void:
 func tick(delta: float) -> void:
 	elapsed += delta
 	var walker: Node3D = level.prop("Walker")
-	walker.animate(delta, "Walk" if not chase_active else "Idle")
 	if walker.visible and not chase_active:
-		walker.position.z += walker_direction * delta * 0.7
-		if walker.position.z < level.walker_patrol_z.x:
-			walker_direction = 1.0
-		if walker.position.z > level.walker_patrol_z.y:
-			walker_direction = -1.0
-		walker.rotation.y = 0.0 if walker_direction < 0 else PI
-		walker.get_node("LeftLeg").rotation.x = sin(elapsed * 3) * 0.16
-		walker.get_node("RightLeg").rotation.x = -sin(elapsed * 3) * 0.16
+		var endpoint: float = level.walker_patrol_z.x if walker_direction < 0 else level.walker_patrol_z.y
+		var remaining := absf(endpoint - walker.position.z)
+		if walker_turn_time > 0:
+			walker_turn_time = maxf(0, walker_turn_time - delta)
+			walker_speed = 0
+		elif remaining < .025:
+			walker.position.z = endpoint
+			walker_direction *= -1
+			walker_turn_time = .7
+			walker_speed = 0
+		else:
+			walker_speed = move_toward(walker_speed, minf(.7, sqrt(2 * 1.4 * remaining)), delta * 1.4)
+			walker.position.z = move_toward(walker.position.z, endpoint, walker_speed * delta)
+		walker.face_toward(walker.position + Vector3(0, 0, walker_direction), delta)
+		walker.animate(delta, "Walk" if walker_speed > .04 else "Idle", walker_speed)
+	else:
+		walker.animate(delta, "Idle")
+	for stationary in ["Peeper", "WindowWatcher"]:
+		level.prop(stationary).animate(delta, "Idle")
 	if active_id != 27:
 		check_eyes(delta)
 	match active_id:
@@ -203,10 +217,10 @@ func tick(delta: float) -> void:
 				var pursuer: Node3D = level.prop("Pursuer")
 				var target: Vector3 = player.position
 				target.y = 0.0
-				pursuer.animate(delta, "Run")
+				pursuer.animate(delta, "Run", config.chase_speed)
 				pursuer.position = pursuer.position.move_toward(target, config.chase_speed * delta)
 				if pursuer.position.distance_to(target) > 0.01:
-					pursuer.look_at(target + Vector3(0, 0.001, 0))
+					pursuer.face_toward(target, delta)
 				if elapsed - last_sound > 0.32:
 					sound.play_at("step", pursuer.global_position, 3.0, 0.7)
 					last_sound = elapsed
@@ -248,8 +262,8 @@ func tick_no_running(delta: float) -> void:
 	if follower.position.distance_to(destination) < .6:
 		danger.emit(preload("res://scripts/localization.gd").t("คุณหยุดเดินจนชายข้างหลังตามทัน"))
 		return
-	follower.look_at(destination + Vector3(0, .001, 0))
-	follower.animate(delta, "Walk")
+	follower.face_toward(destination, delta)
+	follower.animate(delta, "Walk", config.walk_speed * .9)
 	if elapsed - last_sound > .55:
 		sound.play_at("step", follower.global_position, -5.0)
 		last_sound = elapsed
