@@ -3,3 +3,13 @@
 /android/
 *.log
 /builds/
+
+# Generated Web exports are built by GitHub Actions
+/*.pck
+/*.wasm
+/index.html
+/index.js
+/index.audio*.js
+/index*.png
+/index*.png.import
+/builds/
