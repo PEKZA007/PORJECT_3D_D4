@@ -33,6 +33,14 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v6
 
+      - name: Bundle the Thai font for browsers
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets/fonts
+          curl --fail --location --retry 3 https://raw.githubusercontent.com/notofonts/noto-fonts/main/hinted/ttf/NotoSansThai/NotoSansThai-Regular.ttf -o assets/fonts/NotoSansThai-Regular.ttf
+          curl --fail --location --retry 3 https://raw.githubusercontent.com/notofonts/noto-fonts/main/LICENSE -o assets/fonts/OFL.txt
+
       - name: Install Godot and matching export templates
         shell: bash
         run: |
@@ -57,6 +65,7 @@ jobs:
           mkdir -p builds/web
           "$godot" --headless --path . --export-release Web builds/web/index.html
           touch builds/web/.nojekyll
+          cp assets/fonts/OFL.txt builds/web/NotoSansThai-LICENSE.txt
 
       - name: Verify exported files and Pages size
         shell: bash
