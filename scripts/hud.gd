@@ -132,8 +132,9 @@ func build() -> void:
 	screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	screen.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var theme := Theme.new()
-	var font := SystemFont.new()
-	font.font_names = PackedStringArray(["Leelawadee UI", "Noto Sans Thai", "Tahoma"])
+	var font: Font = load("res://assets/fonts/NotoSansThai-Regular.ttf") if OS.has_feature("web") else SystemFont.new()
+	if font is SystemFont:
+		font.font_names = PackedStringArray(["Leelawadee UI", "Noto Sans Thai", "Tahoma"])
 	theme.default_font = font
 	theme.default_font_size = 18
 	screen.theme = theme
