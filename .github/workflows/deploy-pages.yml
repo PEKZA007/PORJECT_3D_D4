@@ -38,6 +38,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p assets/fonts
+          curl --fail --location --retry 3 https://raw.githubusercontent.com/notofonts/noto-fonts/main/hinted/ttf/NotoSans/NotoSans-Regular.ttf -o assets/fonts/NotoSans-Regular.ttf
           curl --fail --location --retry 3 https://raw.githubusercontent.com/notofonts/noto-fonts/main/hinted/ttf/NotoSansThai/NotoSansThai-Regular.ttf -o assets/fonts/NotoSansThai-Regular.ttf
           curl --fail --location --retry 3 https://raw.githubusercontent.com/notofonts/noto-fonts/main/LICENSE -o assets/fonts/OFL.txt
 
