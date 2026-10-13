@@ -28,7 +28,7 @@ Web preset ไม่รวมเอกสาร ผลการทดสอบ e
 - ถ้า Configure Pages ไม่ผ่าน ให้ตรวจ Settings → Pages → GitHub Actions
 - ถ้า export ไม่ผ่าน ให้เปิด build → Import and export the Web game เพื่ออ่านข้อผิดพลาด
 - ถ้าเกมเปิดแล้วมีปัญหา ให้เปิด Developer Tools ของเบราว์เซอร์ดู Console
-- ข้อความไทยใช้ SystemFont ในโค้ดปัจจุบัน ต้องตรวจบนเบราว์เซอร์และเครื่องที่ใช้พรีเซนต์
+- บนเว็บใช้ฟอนต์ Noto Sans Thai ที่ workflow ดาวน์โหลดก่อน import พร้อมเผยแพร่สัญญาอนุญาต SIL Open Font License ส่วน Windows ยังใช้ SystemFont เดิม
 - ควรทดลองเสียง วิดีโอ กล้อง กระจก และฉากจบบนเว็บจริงก่อนใช้งาน
 
 เอกสารทางการ https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages
